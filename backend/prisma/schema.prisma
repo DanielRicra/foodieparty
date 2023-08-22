@@ -6,3 +6,108 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id              String         @id @default(uuid())
+  username        String         @unique @db.VarChar(20)
+  email           String         @unique @db.VarChar(100)
+  name            String?        @db.VarChar(120)
+  password        String         @db.VarChar(60)
+  profileImageUrl String?        @map("profile_image_url") @db.Text
+  bio             String?        @db.Text
+  createdAt       DateTime       @default(now()) @map("created_at")
+  recipes         Recipe[]
+  tipsAndTriks    TipsAndTriks[]
+  mealPlans       MealPlan[]
+  reviews         Review[]
+  collections     Collection[]
+
+  @@map("user")
+}
+
+model Ingredient {
+  id        Int                @id @default(autoincrement())
+  name      String             @db.VarChar(100)
+  createdAt DateTime           @default(now()) @map("created_at")
+  recipes   RecipeIngredient[]
+
+  @@map("ingredient")
+}
+
+model Recipe {
+  id           Int                @id @default(autoincrement())
+  title        String             @db.VarChar(120)
+  instructions String?            @db.Text
+  description  String             @db.Text
+  prepTime     Int?               @map("prep_time")
+  cookTime     Int?               @map("cook_time")
+  totalTime    Int?               @map("total_time")
+  createdAt    DateTime           @default(now()) @map("created_at")
+  userId       String             @map("user_id")
+  user         User               @relation(fields: [userId], references: [id])
+  ingredients  RecipeIngredient[]
+  mealPlans    MealPlan[]         @relation("recipe_meal_plan")
+  reviews      Review[]
+  collections  Collection[]       @relation("recipe_collection")
+
+  @@map("recipe")
+}
+
+model RecipeIngredient {
+  id           Int        @id @default(autoincrement())
+  quantity     Decimal    @db.Decimal(10, 2)
+  unit         String     @db.VarChar(60)
+  createdAt    DateTime   @default(now()) @map("created_at")
+  ingredientId Int        @map("ingredient_id")
+  ingredient   Ingredient @relation(fields: [ingredientId], references: [id])
+  recipeId     Int        @map("recipe_id")
+  recipe       Recipe     @relation(fields: [recipeId], references: [id])
+
+  @@map("recipe_ingredient")
+}
+
+model TipsAndTriks {
+  id        Int      @id @default(autoincrement())
+  title     String   @db.VarChar(255)
+  content   String   @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@map("tips_and_triks")
+}
+
+model MealPlan {
+  id        Int      @id @default(autoincrement())
+  title     String   @db.VarChar(255)
+  createdAt DateTime @default(now()) @map("created_at")
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id])
+  recipes   Recipe[] @relation("recipe_meal_plan")
+
+  @@map("meal_plan")
+}
+
+model Review {
+  id        String   @id @default(uuid())
+  rating    Int      @db.SmallInt
+  comment   String   @db.VarChar()
+  createdAt DateTime @default(now()) @map("created_at")
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id])
+  recipeId  Int      @map("recipe_id")
+  recipe    Recipe   @relation(fields: [recipeId], references: [id])
+
+  @@map("review")
+}
+
+model Collection {
+  id        String   @id @default(uuid())
+  title     String   @db.VarChar(255)
+  createdAt DateTime @default(now()) @map("created_at")
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id])
+  recipes   Recipe[] @relation("recipe_collection")
+
+  @@map("collection")
+}
