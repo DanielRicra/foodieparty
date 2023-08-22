@@ -12,7 +12,7 @@ model User {
   username        String         @unique @db.VarChar(20)
   email           String         @unique @db.VarChar(100)
   name            String?        @db.VarChar(120)
-  password        String         @db.VarChar(60)
+  password        String         @db.VarChar(97)
   profileImageUrl String?        @map("profile_image_url") @db.Text
   bio             String?        @db.Text
   createdAt       DateTime       @default(now()) @map("created_at")
