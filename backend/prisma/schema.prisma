@@ -43,8 +43,8 @@ model Recipe {
   cookTime     Int?               @map("cook_time")
   totalTime    Int?               @map("total_time")
   createdAt    DateTime           @default(now()) @map("created_at")
-  userId       String             @map("user_id")
-  user         User               @relation(fields: [userId], references: [id])
+  userId       String?            @map("user_id")
+  user         User?              @relation(fields: [userId], references: [id], onDelete: SetNull, onUpdate: Cascade)
   ingredients  RecipeIngredient[]
   mealPlans    MealPlan[]         @relation("recipe_meal_plan")
   reviews      Review[]
@@ -59,9 +59,9 @@ model RecipeIngredient {
   unit         String     @db.VarChar(60)
   createdAt    DateTime   @default(now()) @map("created_at")
   ingredientId Int        @map("ingredient_id")
-  ingredient   Ingredient @relation(fields: [ingredientId], references: [id])
+  ingredient   Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
   recipeId     Int        @map("recipe_id")
-  recipe       Recipe     @relation(fields: [recipeId], references: [id])
+  recipe       Recipe     @relation(fields: [recipeId], references: [id], onDelete: Cascade)
 
   @@map("recipe_ingredient")
 }
@@ -71,8 +71,8 @@ model TipsAndTriks {
   title     String   @db.VarChar(255)
   content   String   @db.Text
   createdAt DateTime @default(now()) @map("created_at")
-  userId    String   @map("user_id")
-  user      User     @relation(fields: [userId], references: [id])
+  userId    String?  @map("user_id")
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull, onUpdate: Cascade)
 
   @@map("tips_and_triks")
 }
@@ -81,8 +81,8 @@ model MealPlan {
   id        Int      @id @default(autoincrement())
   title     String   @db.VarChar(255)
   createdAt DateTime @default(now()) @map("created_at")
-  userId    String   @map("user_id")
-  user      User     @relation(fields: [userId], references: [id])
+  userId    String?  @map("user_id")
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   recipes   Recipe[] @relation("recipe_meal_plan")
 
   @@map("meal_plan")
@@ -94,9 +94,9 @@ model Review {
   comment   String   @db.VarChar()
   createdAt DateTime @default(now()) @map("created_at")
   userId    String   @map("user_id")
-  user      User     @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   recipeId  Int      @map("recipe_id")
-  recipe    Recipe   @relation(fields: [recipeId], references: [id])
+  recipe    Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@map("review")
 }
@@ -105,8 +105,9 @@ model Collection {
   id        String   @id @default(uuid())
   title     String   @db.VarChar(255)
   createdAt DateTime @default(now()) @map("created_at")
-  userId    String   @map("user_id")
-  user      User     @relation(fields: [userId], references: [id])
+  userId    String?  @map("user_id")
+  isPublic  Boolean  @default(false)
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   recipes   Recipe[] @relation("recipe_collection")
 
   @@map("collection")
