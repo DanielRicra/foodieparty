@@ -11,9 +11,13 @@ import { swaggerConfig, swaggerOptions } from './config';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
 
-  const document = SwaggerModule.createDocument(app, swaggerConfig, swaggerOptions);
+  const document = SwaggerModule.createDocument(
+    app,
+    swaggerConfig,
+    swaggerOptions,
+  );
   SwaggerModule.setup('api', app, document);
 
   await app.listen(3000);
