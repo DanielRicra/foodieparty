@@ -11,6 +11,7 @@ import { JwtService } from '@nestjs/jwt';
 
 import { PrismaService } from '../prisma/prisma.service';
 import { AuthDto, LoginDto } from './dto';
+import { UserService } from '../user/user.service';
 
 @Injectable()
 export class AuthService {
@@ -18,28 +19,20 @@ export class AuthService {
     private prisma: PrismaService,
     private jwt: JwtService,
     private config: ConfigService,
+    private readonly userService: UserService,
   ) {}
 
   async signIn(dto: LoginDto): Promise<{ accessToken: string }> {
     try {
-      const existingUser = await this.prisma.user.findUniqueOrThrow({
-        where: {
-          username: dto.username,
-        },
-      });
-
-      const isCorrectPassword = await argon.verify(
-        existingUser.password,
-        dto.password,
+      const user = await this.userService.getByUsernameOrThrow(
+        dto.username,
       );
 
-      if (!isCorrectPassword) {
-        throw new UnauthorizedException('Bad credentials');
-      }
+      await this.verifyPassword(user.password, dto.password);
 
-      delete existingUser.password;
+      delete user.password;
 
-      return this.signToken(existingUser.id, existingUser.email);
+      return this.signToken(user.id, user.email);
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2025') {
@@ -50,7 +43,7 @@ export class AuthService {
     }
   }
 
-  async signUp(dto: AuthDto): Promise<{ accessToken: string }> { 
+  async signUp(dto: AuthDto): Promise<{ accessToken: string }> {
     const hash = await argon.hash(dto.password);
 
     try {
@@ -94,5 +87,19 @@ export class AuthService {
     return {
       accessToken,
     };
+  }
+
+  private async verifyPassword(
+    hashedPassword: string,
+    plainTextPassword: string,
+  ) {
+    const isPasswordMatching = await argon.verify(
+      hashedPassword,
+      plainTextPassword,
+    );
+
+    if (!isPasswordMatching) {
+      throw new UnauthorizedException('Bad credentials');
+    }
   }
 }
