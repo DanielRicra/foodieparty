@@ -18,7 +18,7 @@ export class UserService {
   constructor(private prisma: PrismaService) {}
 
   async findAll(pageOptionsDto: PageOptionsDto): Promise<PageDto<UserDto>> {
-    const queryOptions: Prisma.UserFindFirstArgs = {
+    const queryOptions: Prisma.UserFindManyArgs = {
       orderBy: {
         createdAt: pageOptionsDto.order,
       },
