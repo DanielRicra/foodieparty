@@ -17,8 +17,12 @@ import { JwtGuard } from 'src/auth/guard';
 import { UserService } from './user.service';
 import { PageDto, PageOptionsDto } from '../common';
 import { UpdateUserDto } from './dto';
+import { ApiTags } from '@nestjs/swagger';
+import { ApiPaginatedResponse } from 'src/common/decorator/api-paginated-response.decorator';
+import { UserDto } from './dto/user.dto';
 
 @Controller('api/users')
+@ApiTags('Users')
 export class UserController {
   constructor(private userService: UserService) {}
 
@@ -29,7 +33,8 @@ export class UserController {
   }
 
   @Get()
-  findAll(@Query() pageOptionsDto: PageOptionsDto): Promise<PageDto<User>> {
+  @ApiPaginatedResponse(UserDto)
+  findAll(@Query() pageOptionsDto: PageOptionsDto): Promise<PageDto<UserDto>> {
     return this.userService.findAll(pageOptionsDto);
   }
 

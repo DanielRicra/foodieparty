@@ -11,12 +11,13 @@ import { PrismaService } from '../prisma/prisma.service';
 import { PageDto } from '../common';
 import { PageMetaDto, PageOptionsDto } from '../common/dto';
 import { UpdateUserDto } from './dto';
+import { UserDto } from './dto/user.dto';
 
 @Injectable()
 export class UserService {
   constructor(private prisma: PrismaService) {}
 
-  async findAll(pageOptionsDto: PageOptionsDto): Promise<PageDto<User>> {
+  async findAll(pageOptionsDto: PageOptionsDto): Promise<PageDto<UserDto>> {
     const queryOptions: Prisma.UserFindFirstArgs = {
       orderBy: {
         createdAt: pageOptionsDto.order,
@@ -36,7 +37,20 @@ export class UserService {
       throw new NotFoundException('Page not found');
     }
 
-    return new PageDto<User>(users, meta);
+    const usersDto = users.map(
+      (user) =>
+        new UserDto(
+          user.bio,
+          user.name,
+          user.username,
+          user.profileImageUrl,
+          user.id,
+          user.email,
+          user.createdAt,
+        ),
+    );
+
+    return new PageDto<UserDto>(usersDto, meta);
   }
 
   getByUsernameOrThrow(username: string) {
