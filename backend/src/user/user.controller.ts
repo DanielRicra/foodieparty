@@ -17,17 +17,18 @@ import { JwtGuard } from 'src/auth/guard';
 import { UserService } from './user.service';
 import { PageDto, PageOptionsDto } from '../common';
 import { UpdateUserDto } from './dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ApiPaginatedResponse } from 'src/common/decorator/api-paginated-response.decorator';
 import { UserDto } from './dto/user.dto';
 
 @Controller('api/users')
+@UseGuards(JwtGuard)
 @ApiTags('Users')
+@ApiBearerAuth()
 export class UserController {
   constructor(private userService: UserService) {}
 
   @Get('me')
-  @UseGuards(JwtGuard)
   getMe(@GetUser() user: User): User {
     return user;
   }
@@ -39,13 +40,11 @@ export class UserController {
   }
 
   @Get(':id')
-  @UseGuards(JwtGuard)
   findOne(@Param('id') id: string): Promise<User> {
     return this.userService.findOne(id);
   }
 
   @Patch('me')
-  @UseGuards(JwtGuard)
   update(
     @GetUser('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
@@ -54,7 +53,6 @@ export class UserController {
   }
 
   @Delete('me')
-  @UseGuards(JwtGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   delete(@GetUser('id') id: string): Promise<void> {
     return this.userService.delete(id);
