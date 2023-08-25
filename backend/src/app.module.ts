@@ -6,6 +6,8 @@ import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
+import { RecipeModule } from './recipe/recipe.module';
+import { IngredientModule } from './ingredient/ingredient.module';
 
 @Module({
   imports: [
@@ -13,6 +15,8 @@ import { AuthModule } from './auth/auth.module';
     UserModule,
     AuthModule,
     ConfigModule.forRoot({ isGlobal: true }),
+    RecipeModule,
+    IngredientModule,
   ],
   controllers: [AppController],
   providers: [AppService],
