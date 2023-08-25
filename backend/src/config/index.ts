@@ -13,6 +13,7 @@ export const setUpSwagger = (app: INestApplication): void => {
     )
     .setVersion('1.0')
     .addTag('foodies')
+    .addBearerAuth()
     .build();
   const swaggerOptions: SwaggerDocumentOptions = {
     operationIdFactory: (controllerKey: string, methodKey: string) => methodKey,
